@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Special Invitation Chat</title>
+  <title>THE LOVE SHARK</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -37,7 +37,10 @@
       height: 40px;
       border-radius: 50%;
       margin-right: 10px;
-      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
     }
     .message.you {
       justify-content: flex-end;
@@ -51,6 +54,7 @@
       border-radius: 12px;
       background: #e4e6eb;
       max-width: 70%;
+      word-wrap: break-word;
     }
     input[type="text"] {
       width: 70%;
@@ -79,20 +83,23 @@
 </head>
 <body>
   <div class="chat-container">
-    <h2>The Love Shack</h2>
+    <h2>🦈 THE LOVE SHARK</h2>
+
+    <!-- Login Screen -->
     <div id="login">
       <input type="text" id="usernameInput" placeholder="Enter your name..." />
       <select id="avatarSelect">
         <option value="beauty">👸 Beauty</option>
         <option value="beast">🦁 Beast</option>
       </select>
-      <button onclick="setUsername()">Join Chat</button>
+      <button id="joinBtn">Join Chat</button>
     </div>
 
+    <!-- Chat UI -->
     <div id="chatUI" style="display:none;">
       <div class="messages" id="chatBox"></div>
       <input type="text" id="messageInput" placeholder="Type your message..." />
-      <button onclick="sendMessage()">Send</button>
+      <button id="sendBtn">Send</button>
     </div>
   </div>
 
@@ -101,7 +108,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
 
-    // 🔹 Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBCHG64bd9E1EDmT9Pfw9slrnIr5rvij14",
       authDomain: "special-invitation-dave.firebaseapp.com",
@@ -120,17 +126,28 @@
     let username = "";
     let avatar = "";
 
-    function setUsername() {
+    const loginDiv = document.getElementById("login");
+    const chatDiv = document.getElementById("chatUI");
+    const joinBtn = document.getElementById("joinBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const messageInput = document.getElementById("messageInput");
+    const chatBox = document.getElementById("chatBox");
+
+    joinBtn.addEventListener("click", () => {
       username = document.getElementById("usernameInput").value.trim();
       avatar = document.getElementById("avatarSelect").value;
-      if (!username) return alert("Please enter a name!");
 
-      document.getElementById("login").style.display = "none";
-      document.getElementById("chatUI").style.display = "block";
-    }
+      if (!username) {
+        alert("Please enter a name!");
+        return;
+      }
 
-    function sendMessage() {
-      const text = document.getElementById("messageInput").value.trim();
+      loginDiv.style.display = "none";
+      chatDiv.style.display = "block";
+    });
+
+    sendBtn.addEventListener("click", () => {
+      const text = messageInput.value.trim();
       if (!text) return;
 
       push(messagesRef, {
@@ -140,11 +157,10 @@
         timestamp: Date.now()
       });
 
-      document.getElementById("messageInput").value = "";
-    }
+      messageInput.value = "";
+    });
 
     function displayMessage(user, avatar, text) {
-      const chatBox = document.getElementById("chatBox");
       const div = document.createElement("div");
       div.className = "message" + (user === username ? " you" : "");
 
@@ -171,6 +187,10 @@
     onChildAdded(messagesRef, snapshot => {
       const msg = snapshot.val();
       displayMessage(msg.user, msg.avatar, msg.text);
+    });
+
+    messageInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendBtn.click();
     });
   </script>
 </body>
