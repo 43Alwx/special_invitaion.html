@@ -3,49 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Special Invitation Chat</title>
+  <title>Two-Way Chat</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f0f4f8;
+      background: #e5ddd5;
       margin: 0;
       padding: 20px;
     }
     .chat-container {
       max-width: 500px;
       margin: auto;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      height: 600px;
+      overflow: hidden;
+    }
+    .chat-header {
+      background: #0078D7;
+      color: white;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
     }
     .messages {
-      height: 300px;
+      flex: 1;
       overflow-y: auto;
-      border: 1px solid #ddd;
+      padding: 15px;
+      background: #f0f4f8;
+    }
+    .message-row {
+      display: flex;
+      margin-bottom: 15px;
+      align-items: flex-end;
+    }
+    .message-row.you {
+      justify-content: flex-end;
+    }
+    .message-bubble {
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 18px;
+      position: relative;
+      font-size: 14px;
+    }
+    .you .message-bubble {
+      background: #0078D7;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .friend .message-bubble {
+      background: #e5e5ea;
+      color: black;
+      border-bottom-left-radius: 4px;
+    }
+    .avatar {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      margin: 0 8px;
+    }
+    .timestamp {
+      font-size: 11px;
+      color: #777;
+      margin-top: 4px;
+      text-align: right;
+    }
+    .controls {
+      display: flex;
       padding: 10px;
-      margin-bottom: 10px;
+      border-top: 1px solid #ddd;
       background: #fafafa;
     }
-    .message {
-      margin-bottom: 10px;
-    }
-    .message.you {
-      text-align: right;
-      color: #0078D7;
-    }
     input[type="text"] {
-      width: 80%;
+      flex: 1;
       padding: 10px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 20px;
+      outline: none;
+    }
+    select {
+      margin: 0 8px;
+      padding: 8px;
+      border-radius: 6px;
     }
     button {
       padding: 10px 15px;
       background: #0078D7;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 50%;
       cursor: pointer;
     }
     button:hover {
@@ -55,36 +106,60 @@
 </head>
 <body>
   <div class="chat-container">
-    <h2>🎉 You're Invited! Let's Chat</h2>
+    <div class="chat-header">💬 Two-Way Chat</div>
     <div class="messages" id="chatBox"></div>
-    <input type="text" id="messageInput" placeholder="Type your message..." />
-    <button onclick="sendMessage()">Send</button>
+    <div class="controls">
+      <select id="sender">
+        <option value="you">You</option>
+        <option value="friend">Friend</option>
+      </select>
+      <input type="text" id="messageInput" placeholder="Type your message..." />
+      <button onclick="sendMessage()">➤</button>
+    </div>
   </div>
 
   <script>
     const chatBox = document.getElementById('chatBox');
     const input = document.getElementById('messageInput');
+    const senderSelect = document.getElementById('sender');
 
     function sendMessage() {
       const text = input.value.trim();
       if (text === '') return;
 
-      const msg = document.createElement('div');
-      msg.className = 'message you';
-      msg.textContent = text;
-      chatBox.appendChild(msg);
+      const sender = senderSelect.value;
 
+      const row = document.createElement('div');
+      row.className = 'message-row ' + sender;
+
+      const avatar = document.createElement('img');
+      avatar.className = 'avatar';
+      avatar.src = sender === 'you' 
+        ? 'https://i.pravatar.cc/35?img=3' 
+        : 'https://i.pravatar.cc/35?img=5';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.textContent = text;
+
+      const timestamp = document.createElement('div');
+      timestamp.className = 'timestamp';
+      const now = new Date();
+      timestamp.textContent = now.getHours().toString().padStart(2, '0') + ':' +
+                              now.getMinutes().toString().padStart(2, '0');
+      bubble.appendChild(timestamp);
+
+      if (sender === 'you') {
+        row.appendChild(bubble);
+        row.appendChild(avatar);
+      } else {
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+      }
+
+      chatBox.appendChild(row);
       input.value = '';
       chatBox.scrollTop = chatBox.scrollHeight;
-
-      // Simulate a reply
-      setTimeout(() => {
-        const reply = document.createElement('div');
-        reply.className = 'message';
-        reply.textContent = "Thanks for your message!";
-        chatBox.appendChild(reply);
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }, 1000);
     }
   </script>
 </body>
